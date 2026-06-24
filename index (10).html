@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letterhead Builder — Acceptance Letter Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1b19;
+    --paper:#f7f5f0;
+    --rule:#9c2b32;
+    --accent:#8a6d3b;
+    --muted:#6b6660;
+    --panel:#ece8e0;
+    --panel-line:#d8d2c4;
+    --white:#fffdf9;
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',sans-serif;background:var(--panel);color:var(--ink);}
+
+  /* ---------- layout ---------- */
+  .app{display:grid;grid-template-columns:380px 1fr;min-height:100vh;}
+
+  .rail{
+    background:var(--panel);
+    border-right:1px solid var(--panel-line);
+    padding:28px 24px 80px;
+    overflow-y:auto;
+    max-height:100vh;
+  }
+  .rail h1{
+    font-family:'Roboto Slab',serif;
+    font-size:18px;
+    margin:0 0 4px;
+    letter-spacing:.2px;
+  }
+  .rail .sub{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:0 0 26px;
+    line-height:1.5;
+  }
+
+  .group{
+    margin-bottom:22px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--panel-line);
+  }
+  .group:last-of-type{border-bottom:none;}
+  .group-label{
+    font-family:'Roboto Slab',serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.4px;
+    color:var(--accent);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+
+  label.field{display:block;margin-bottom:10px;}
+  label.field span{
+    display:block;
+    font-size:11.5px;
+    color:var(--muted);
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  input[type=text], input[type=email], textarea{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:8px 10px;
+    border:1px solid var(--panel-line);
+    border-radius:3px;
+    background:var(--white);
+    color:var(--ink);
+    resize:vertical;
+  }
+  input[type=text]:focus, input[type=email]:focus, textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+  }
+  textarea{line-height:1.5;}
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  .color-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .color-row span{font-size:11.5px;color:var(--muted);flex:1;font-weight:500;}
+  input[type=color]{
+    width:34px;height:28px;border:1px solid var(--panel-line);border-radius:3px;
+    padding:0;background:none;cursor:pointer;
+  }
+
+  .logo-drop{
+    border:1px dashed var(--panel-line);
+    border-radius:4px;
+    padding:14px;
+    text-align:center;
+    font-size:12px;
+    color:var(--muted);
+    cursor:pointer;
+    background:var(--white);
+    transition:border-color .15s;
+  }
+  .logo-drop:hover{border-color:var(--accent);}
+  .logo-drop input{display:none;}
+  .logo-preview-row{display:flex;align-items:center;gap:10px;margin-top:8px;}
+  .logo-preview-row img{height:34px;width:auto;border:1px solid var(--panel-line);border-radius:2px;background:#fff;}
+  .ghost-btn{
+    font-size:11px;color:var(--muted);background:none;border:1px solid var(--panel-line);
+    border-radius:3px;padding:4px 8px;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .ghost-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+  .actions{position:sticky;bottom:0;background:var(--panel);padding-top:14px;}
+  .btn-primary{
+    width:100%;
+    background:var(--ink);
+    color:var(--white);
+    border:none;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:11px;
+    border-radius:3px;
+    cursor:pointer;
+    margin-bottom:8px;
+    letter-spacing:.2px;
+  }
+  .btn-primary:hover{background:#000;}
+  .btn-secondary{
+    width:100%;
+    background:none;
+    color:var(--muted);
+    border:1px solid var(--panel-line);
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    padding:9px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* ---------- preview stage ---------- */
+  .stage{
+    padding:50px 40px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+  }
+  .sheet{
+    width:680px;
+    min-height:880px;
+    background:var(--white);
+    box-shadow:0 1px 3px rgba(0,0,0,.08), 0 12px 40px rgba(0,0,0,.14);
+    padding:54px 58px 60px;
+    font-family:'Tinos',serif;
+    color:#222;
+  }
+
+  .lh-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
+  .lh-id{display:flex;align-items:center;gap:12px;}
+  .lh-id img{height:58px;width:auto;object-fit:contain;}
+  .lh-id .crest-fallback{
+    height:58px;width:58px;border-radius:50%;
+    border:2px solid var(--rule);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Roboto Slab',serif;font-weight:700;color:var(--rule);font-size:20px;
+    flex-shrink:0;
+  }
+  .lh-name{font-family:'Inter',sans-serif;line-height:1.15;}
+  .lh-name .uni{font-size:13px;font-weight:600;letter-spacing:.3px;color:#222;text-transform:uppercase;}
+  .lh-name .uniline{font-size:11px;font-weight:600;letter-spacing:.5px;color:#222;text-transform:uppercase;}
+
+  .lh-dept{
+    text-align:right;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    color:var(--accent);
+    font-weight:600;
+    letter-spacing:.2px;
+    padding-top:6px;
+    white-space:nowrap;
+  }
+
+  .lh-rule{height:3px;background:var(--rule);margin-top:14px;}
+  .lh-rule-thin{height:1px;background:var(--rule);margin-top:3px;opacity:.55;}
+
+  .lh-address{
+    text-align:center;
+    font-family:'Inter',sans-serif;
+    font-size:10px;
+    color:#444;
+    letter-spacing:.2px;
+    margin-top:6px;
+  }
+
+  .lh-body{margin-top:48px;font-size:14.5px;line-height:1.75;}
+  .lh-date{margin-bottom:30px;}
+  .lh-greeting{margin-bottom:16px;}
+  .lh-para{margin:0 0 16px;text-indent:28px;white-space:pre-wrap;}
+  .lh-closing{margin-top:6px;white-space:pre-wrap;}
+  .lh-sig{margin-top:34px;white-space:pre-wrap;}
+
+  @media print{
+    .rail{display:none;}
+    .app{grid-template-columns:1fr;}
+    .stage{padding:0;}
+    .sheet{box-shadow:none;width:100%;}
+    body{background:#fff;}
+  }
+
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr;}
+    .rail{max-height:none;border-right:none;border-bottom:1px solid var(--panel-line);}
+    .sheet{width:100%;padding:36px 28px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== CONTROL RAIL ===================== -->
+  <div class="rail">
+    <h1>Letterhead Builder</h1>
+    <p class="sub">Set up the institution once, then swap in each applicant's details. Built for prototyping acceptance-letter output across multiple schools.</p>
+
+    <div class="group">
+      <p class="group-label">Institution</p>
+      <label class="field"><span>University / college name</span>
+        <input type="text" id="uniName" value="THE UNIVERSITY OF UTAH">
+      </label>
+      <label class="field"><span>Department / school</span>
+        <input type="text" id="deptName" value="Department of Art &amp; Art History">
+      </label>
+
+      <label class="field"><span>Logo or seal</span>
+        <div class="logo-drop" id="logoDrop">
+          Click to upload an image (PNG/SVG, transparent background looks best)
+          <input type="file" id="logoInput" accept="image/*">
+        </div>
+      </label>
+      <div class="logo-preview-row" id="logoPreviewRow" style="display:none;">
+        <img id="logoPreviewImg" alt="logo preview">
+        <button class="ghost-btn" id="logoClear">Remove</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-label">Address block</p>
+      <label class="field"><span>Street / room line</span>
+        <input type="text" id="addrLine1" value="375 S 1530 E Rm. 161">
+      </label>
+      <div class="row2">
+        <label class="field"><span>City, state, ZIP</span>
+          <input type="text" id="addrLine2" value="Salt Lake City, Utah 84112-0380">
+        </label>
+        <label class="field"><span>Phone</span>
+          <input type="text" id="addrPhone" value="(801) 581-8677">
+        </label>
+      </div>
+      <div class="row2">
+        <label class="field"><span>Fax</span>
+          <input type="text" id="addrFax" value="(801) 585-6171">
+        </label>
+        <label class="field"><span>Website</span>
+          <input type="text" id="addrWeb" value="www.art.utah.edu">
+        </label>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-label">Color scheme</p>
+      <div class="color-row">
+        <span>Letterhead rule</span>
+        <input type="color" id="colorRule" value="#9c2b32">
+      </div>
+      <div class="color-row">
+        <span>Accent (dept label, crest)</span>
+        <input type="color" id="colorAccent" value="#8a6d3b">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-label">Letter content</p>
+      <div class="row2">
+        <label class="field"><span>Date</span>
+          <input type="text" id="letterDate" value="March 31, 2006">
+        </label>
+        <label class="field"><span>Recipient name</span>
+          <input type="text" id="recipientName" value="Julie Keating">
+        </label>
+      </div>
+      <label class="field"><span>Body</span>
+        <textarea id="letterBody" rows="9">Congratulations on your acceptance into the Graphic Design/Illustration program. Beginning fall semester, 2026, you may enroll in Art 3610, Visual Communications I and Art 3630, Digital Studio I. The index numbers for registration may be obtained from the office at the time of fall registration (581-8677). Enclosed in your portfolio is an emphasis sheet outlining the program. As a student in the Graphic Design/Illustration program you will be required to attend a Town Meeting, which will be held sometime during fall semester 2026. The date and time of the meeting will be announced in the 3610 class. If you have any questions, please stop by the Art & Art History Department office.
+
+Again, congratulations and good luck with the pursuit of your BFA in graphic design or illustration.</textarea>
+      </label>
+      <label class="field"><span>Closing line</span>
+        <input type="text" id="closingLine" value="Graphic Design/Illustration faculty,">
+      </label>
+      <label class="field"><span>Signatures (one per line)</span>
+        <textarea id="sigBlock" rows="3">Ray Morales
+McRay Magleby
+Carol Sogard</textarea>
+      </label>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="window.print()">Print / save as PDF</button>
+      <button class="btn-secondary" id="resetBtn">Reset to example</button>
+    </div>
+  </div>
+
+  <!-- ===================== PREVIEW ===================== -->
+  <div class="stage">
+    <div class="sheet" id="sheet">
+
+      <div class="lh-header">
+        <div class="lh-id">
+          <img id="logoImg" style="display:none;" alt="logo">
+          <div class="crest-fallback" id="crestFallback">U</div>
+          <div class="lh-name">
+            <div class="uniline" id="previewUni">THE UNIVERSITY OF UTAH</div>
+          </div>
+        </div>
+        <div class="lh-dept" id="previewDept">Department of Art &amp; Art History</div>
+      </div>
+
+      <div class="lh-rule" id="ruleThick"></div>
+      <div class="lh-rule-thin" id="ruleThin"></div>
+
+      <div class="lh-address" id="previewAddr">
+        375 S 1530 E Rm. 161 &nbsp;Salt Lake City, Utah 84112-0380 &nbsp;(801) 581-8677 &nbsp;FAX (801) 585-6171 &nbsp;www.art.utah.edu
+      </div>
+
+      <div class="lh-body">
+        <div class="lh-date" id="previewDate">March 31, 2006</div>
+        <div class="lh-greeting" id="previewGreeting">Dear Julie Keating,</div>
+        <div id="previewParas"></div>
+        <div class="lh-closing" id="previewClosing">Graphic Design/Illustration faculty,</div>
+        <div class="lh-sig" id="previewSig">Ray Morales
+McRay Magleby
+Carol Sogard</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const defaults = {
+  uniName: "THE UNIVERSITY OF UTAH",
+  deptName: "Department of Art &amp; Art History",
+  addrLine1: "375 S 1530 E Rm. 161",
+  addrLine2: "Salt Lake City, Utah 84112-0380",
+  addrPhone: "(801) 581-8677",
+  addrFax: "(801) 585-6171",
+  addrWeb: "www.art.utah.edu",
+  colorRule: "#9c2b32",
+  colorAccent: "#8a6d3b",
+  letterDate: "March 31, 2006",
+  recipientName: "Julie Keating",
+  letterBody: $("letterBody") ? $("letterBody").value : "",
+  closingLine: "Graphic Design/Illustration faculty,",
+  sigBlock: "Ray Morales\nMcRay Magleby\nCarol Sogard"
+};
+
+let logoDataUrl = null;
+
+function render(){
+  const uniName = $("uniName").value || "UNIVERSITY NAME";
+  $("previewUni").innerHTML = uniName;
+
+  $("previewDept").innerHTML = $("deptName").value;
+
+  $("previewAddr").innerHTML =
+    [$("addrLine1").value, $("addrLine2").value, $("addrPhone").value,
+     $("addrFax").value ? "FAX " + $("addrFax").value : "", $("addrWeb").value]
+    .filter(Boolean).join(' &nbsp;');
+
+  const rule = $("colorRule").value;
+  const accent = $("colorAccent").value;
+  document.documentElement.style.setProperty('--rule', rule);
+  document.documentElement.style.setProperty('--accent', accent);
+
+  $("previewDate").textContent = $("letterDate").value;
+  $("previewGreeting").textContent = "Dear " + ($("recipientName").value || "Applicant") + ",";
+
+  const paras = $("letterBody").value.split(/\n\s*\n/).filter(p=>p.trim().length);
+  $("previewParas").innerHTML = paras.map(p => `<p class="lh-para">${escapeHtml(p.trim())}</p>`).join('');
+
+  $("previewClosing").textContent = $("closingLine").value;
+  $("previewSig").textContent = $("sigBlock").value;
+
+  // crest initial fallback (first letter of uni name, ignoring "THE")
+  const initialSrc = uniName.replace(/^THE\s+/i,'').trim();
+  $("crestFallback").textContent = (initialSrc.charAt(0) || "U").toUpperCase();
+}
+
+function escapeHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.querySelectorAll('.rail input, .rail textarea').forEach(el=>{
+  el.addEventListener('input', render);
+});
+
+// logo upload
+$("logoDrop").addEventListener('click', ()=> $("logoInput").click());
+$("logoInput").addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    logoDataUrl = reader.result;
+    $("logoImg").src = logoDataUrl;
+    $("logoImg").style.display = 'block';
+    $("crestFallback").style.display = 'none';
+    $("logoPreviewImg").src = logoDataUrl;
+    $("logoPreviewRow").style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+});
+$("logoClear").addEventListener('click', ()=>{
+  logoDataUrl = null;
+  $("logoImg").style.display = 'none';
+  $("logoImg").removeAttribute('src');
+  $("crestFallback").style.display = 'flex';
+  $("logoPreviewRow").style.display = 'none';
+  $("logoInput").value = '';
+});
+
+$("resetBtn").addEventListener('click', ()=>{
+  $("uniName").value = "THE UNIVERSITY OF UTAH";
+  $("deptName").value = "Department of Art &amp; Art History";
+  $("addrLine1").value = "375 S 1530 E Rm. 161";
+  $("addrLine2").value = "Salt Lake City, Utah 84112-0380";
+  $("addrPhone").value = "(801) 581-8677";
+  $("addrFax").value = "(801) 585-6171";
+  $("addrWeb").value = "www.art.utah.edu";
+  $("colorRule").value = "#9c2b32";
+  $("colorAccent").value = "#8a6d3b";
+  $("letterDate").value = "March 31, 2006";
+  $("recipientName").value = "Julie Keating";
+  $("letterBody").value = "Congratulations on your acceptance into the Graphic Design/Illustration program. Beginning fall semester, 2026, you may enroll in Art 3610, Visual Communications I and Art 3630, Digital Studio I. The index numbers for registration may be obtained from the office at the time of fall registration (581-8677). Enclosed in your portfolio is an emphasis sheet outlining the program. As a student in the Graphic Design/Illustration program you will be required to attend a Town Meeting, which will be held sometime during fall semester 2026. The date and time of the meeting will be announced in the 3610 class. If you have any questions, please stop by the Art & Art History Department office.\n\nAgain, congratulations and good luck with the pursuit of your BFA in graphic design or illustration.";
+  $("closingLine").value = "Graphic Design/Illustration faculty,";
+  $("sigBlock").value = "Ray Morales\nMcRay Magleby\nCarol Sogard";
+  $("logoClear").click();
+  render();
+});
+
+render();
+</script>
+
+</body>
+</html>
